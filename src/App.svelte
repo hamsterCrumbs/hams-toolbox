@@ -1,41 +1,30 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { VTuberToolboxEngine } from './core/engine';
-  import { MockHeartMonitor, PanicTriggerPlugin } from './core/mocks';
+  import { VTSPhoneIntegration } from './integrations/VTSPhoneIntegration';
   import GraphCanvas from './components/GraphCanvas.svelte';
-  import * as Neutralino from '@neutralinojs/lib';
 
   // Import Svelte Flow styles globally so it is parsed before the canvas mounts.
   // This prevents the node measurement race conditions that offset the lines!
   import '@xyflow/svelte/dist/style.css';
+  import { BetterMouthPlugin } from './plugins/BetterMouth';
 
   // We make engine reactive so the GraphCanvas knows when it is ready
   let engine: VTuberToolboxEngine;
   let ticker: ReturnType<typeof setInterval>;
   let poolState = new Map();
   let unsubscribe: () => void;
+  let canvas: GraphCanvas;
 
 onMount(() => {
-    // 1. Boot Native OS Bridge safely
-    // Wrap in a try-catch so that if we run outside `neu run` (e.g. standard browser), 
-    // it doesn't crash the script and prevent the UI from loading.
-    try {
-      Neutralino.init();
-    } catch (error) {
-      console.warn("Neutralino initialization skipped (running outside 'neu run'?):", error);
-    }
-
-    // 2. Create the Engine locally
+    // 1. Create the Engine locally
     const localEngine = new VTuberToolboxEngine();
 
-    // 3. Add our Mocks
-    const heartMonitor = new MockHeartMonitor();
-    const panicPlugin = new PanicTriggerPlugin();
-    localEngine.registerIntegration(heartMonitor);
-    localEngine.registerPlugin(panicPlugin);
+    // 3. Mount VTube Studio iOS Integration
+    const vtsTracker = new VTSPhoneIntegration('192.168.254.102');
+    localEngine.registerIntegration(vtsTracker);
 
-    // 4. Start processing data (Note: start() is async, but we don't await it here 
-    // so we don't block the UI rendering)
+    // 4. Start the engine instantly
     localEngine.start();
 
     // 5. Assign to the reactive variable to trigger the GraphCanvas rendering instantly!
@@ -56,17 +45,28 @@ onMount(() => {
       if (unsubscribe) unsubscribe();
     };
   });
+
+  // Spawns a new plugin instance and updates the engine/UI
+  function spawnPlugin() {
+    if (!engine || !canvas) return;
+    const plugin = new BetterMouthPlugin();
+    engine.registerPlugin(plugin);
+    canvas.addPluginNode(plugin);
+  }
 </script>
 
 <main>
   <div class="header">
     <h1>Ham's VTuber Toolbox</h1>
-    <span class="status">Engine Running at 30fps</span>
+    <div class="controls">
+      <button onclick={spawnPlugin} class="btn">+ Add BetterMouth Plugin</button>
+      <span class="status">Engine Running at 30fps</span>
+    </div>
   </div>
 
   <div class="workspace">
     {#if engine}
-      <GraphCanvas {engine} />
+      <GraphCanvas bind:this={canvas} {engine} />
     {:else}
       <p>Loading nodes...</p>
     {/if}
@@ -110,6 +110,11 @@ onMount(() => {
     align-items: center;
   }
   h1 { margin: 0; }
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
   .status {
     background: #065f46;
     color: #a7f3d0;
@@ -118,6 +123,16 @@ onMount(() => {
     font-size: 0.875rem;
     font-weight: 600;
   }
+  .btn {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .btn:hover { background: #2563eb; }
   .workspace {
     flex-grow: 1;
     min-height: 400px;

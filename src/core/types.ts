@@ -23,6 +23,7 @@ export interface IIntegration {
   
   connect(): Promise<boolean>;
   disconnect(): Promise<void>;
+  reconnect?(): Promise<boolean>;
   poll(): void;
   getOutputs(): Map<string, DataEnvelope>;
 }
@@ -32,6 +33,7 @@ export interface IPlugin {
   name: string;
   
   registerInput(inputId: string, expectedType: 'SINGLE' | 'BUNDLE'): void;
+  getExpectedInputs(): Map<string, 'SINGLE' | 'BUNDLE'>;
   process(inputs: Map<string, DataEnvelope>): Map<string, DataEnvelope>;
   getOutputs(): Map<string, DataEnvelope>;
 }

@@ -11,7 +11,14 @@ export function generateFlowNodes(engine: VTuberToolboxEngine): Node[] {
       id: integration.id,
       type: 'integrationNode', // Custom Svelte component type
       position: { x: 50, y: yOffset },
-      data: { label: integration.name, outputs: Array.from(integration.getOutputs().keys()) }
+      data: { 
+        label: integration.name, 
+        outputs: Array.from(integration.getOutputs().keys()),
+        id: integration.id,
+        engine: engine,
+        reconnect: integration.reconnect ? () => integration.reconnect!() : undefined,
+        integration: integration
+      }
     });
     yOffset += 150;
   }
@@ -25,8 +32,10 @@ export function generateFlowNodes(engine: VTuberToolboxEngine): Node[] {
       position: { x: 400, y: yOffset },
       data: { 
         label: plugin.name, 
-        inputs: ['heartRateInput'], // In production, derive this dynamically from the plugin
-        outputs: Array.from(plugin.getOutputs().keys()) 
+        inputs: Array.from(plugin.getExpectedInputs().keys()),
+        outputs: Array.from(plugin.getOutputs().keys()),
+        id: plugin.id,
+        engine: engine
       }
     });
     yOffset += 150;

@@ -1,7 +1,7 @@
 import type { IIntegration, IPlugin, DataEnvelope } from './types';
 
 export class MockHeartMonitor implements IIntegration {
-  id = 'int_heart01';
+  id = 'int_heart_' + Math.random().toString(36).substring(2, 9);
   name = 'Fake Heart Monitor';
   isConnected = false;
   private currentBpm = 70;
@@ -35,21 +35,21 @@ export class MockHeartMonitor implements IIntegration {
 }
 
 export class PanicTriggerPlugin implements IPlugin {
-  id = 'plug_panic01';
+  id = 'plug_panic_' + Math.random().toString(36).substring(2, 9);
   name = 'Panic Trigger';
   // Pre-initialize outputs so it shows up in UI immediately
   private outputs = new Map<string, DataEnvelope>([
-    ['panicState', { type: 'SINGLE', data: { id: 'panicState', value: false } }]
+    ['panicState', { type: 'SINGLE', data: { id: 'panicState', value: 0 } }]
   ]);
 
   registerInput(inputId: string, expectedType: 'SINGLE' | 'BUNDLE') {}
 
   process(inputs: Map<string, DataEnvelope>) {
     const hrData = inputs.get('heartRateInput');
-    let isPanicking = false;
+    let isPanicking = 0;
 
     if (hrData && hrData.type === 'SINGLE') {
-      isPanicking = (hrData.data.value as number) > 100;
+      isPanicking = (hrData.data.value as number) > 100 ? 1: 0;
     }
 
     this.outputs.set('panicState', {

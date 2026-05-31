@@ -2,6 +2,9 @@ import { writable, type Writable } from 'svelte/store';
 import type { DataEnvelope, IIntegration, IPlugin } from './types';
 
 export class VTuberToolboxEngine {
+  addPlugin(arg0: any) {
+      throw new Error('Method not implemented.');
+  }
   public dataPool: Writable<Map<string, DataEnvelope>>;
   private integrations: Map<string, IIntegration> = new Map();
   private plugins: Map<string, IPlugin> = new Map();
@@ -37,6 +40,13 @@ export class VTuberToolboxEngine {
     return new Map(this.routes);
   }
 
+  /**
+   * Gets the specific pool key routed to a plugin's input handle.
+   */
+  public getRoute(pluginId: string, inputHandle: string): string | undefined {
+    return this.routes.get(pluginId)?.[inputHandle];
+  }
+
   // --- Registration & Routing ---
 
   public registerIntegration(integration: IIntegration) {
@@ -52,6 +62,16 @@ export class VTuberToolboxEngine {
       this.routes.set(pluginId, {});
     }
     this.routes.get(pluginId)![inputHandle] = poolKey;
+  }
+
+  public unregisterIntegration(id: string) {
+    this.integrations.delete(id);
+    this.routes.delete(id);
+  }
+
+  public unregisterPlugin(id: string) {
+    this.plugins.delete(id);
+    this.routes.delete(id);
   }
 
   // --- Runtime Loops ---
