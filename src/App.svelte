@@ -8,6 +8,7 @@
   // This prevents the node measurement race conditions that offset the lines!
   import '@xyflow/svelte/dist/style.css';
   import { BetterMouthPlugin } from './plugins/BetterMouth';
+  import { ExtractPlugin } from './plugins/ExtractPlugin';
 
   // We make engine reactive so the GraphCanvas knows when it is ready
   let engine: VTuberToolboxEngine;
@@ -53,6 +54,13 @@ onMount(() => {
     engine.registerPlugin(plugin);
     canvas.addPluginNode(plugin);
   }
+
+  function spawnExtractPlugin() {
+    if (!engine || !canvas) return;
+    const plugin = new ExtractPlugin();
+    engine.registerPlugin(plugin);
+    canvas.addPluginNode(plugin);
+  }
 </script>
 
 <main>
@@ -60,6 +68,7 @@ onMount(() => {
     <h1>Ham's VTuber Toolbox</h1>
     <div class="controls">
       <button onclick={spawnPlugin} class="btn">+ Add BetterMouth Plugin</button>
+      <button onclick={spawnExtractPlugin} class="btn">+ Add Extract Plugin</button>
       <span class="status">Engine Running at 60fps</span>
     </div>
   </div>
