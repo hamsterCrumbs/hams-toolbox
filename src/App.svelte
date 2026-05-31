@@ -35,10 +35,10 @@ onMount(() => {
       poolState = value;
     });
 
-    // 7. Start the 30fps loop
+    // 7. Start the 60fps loop
     ticker = setInterval(() => {
       engine.tick();
-    }, 1000 / 30);
+    }, 1000 / 60);
   
     return () => {
       if (ticker) clearInterval(ticker);
@@ -60,7 +60,7 @@ onMount(() => {
     <h1>Ham's VTuber Toolbox</h1>
     <div class="controls">
       <button onclick={spawnPlugin} class="btn">+ Add BetterMouth Plugin</button>
-      <span class="status">Engine Running at 30fps</span>
+      <span class="status">Engine Running at 60fps</span>
     </div>
   </div>
 

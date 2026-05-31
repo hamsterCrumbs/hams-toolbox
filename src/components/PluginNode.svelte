@@ -8,6 +8,8 @@
   
   const { deleteElements } = useSvelteFlow();
 
+  $: plugin = data.engine.getPlugins().find((p) => p.id === data.id);
+
   function getInputValue(poolState: Map<string, any>, input: string) {
     // 1. Ask the engine what pool key is routed into this specific input
     const poolKey = data.engine.getRoute(data.id, input);
@@ -18,17 +20,32 @@
       if (envelope && envelope.type === 'SINGLE') {
         return Number(envelope.data.value).toFixed(2);
       }
+      if (envelope && envelope.type === 'BUNDLE') {
+        return "";
+      }
     }
+
+    // If unconnected, check if it expects a bundle to keep it blank
+    if (plugin && plugin.getExpectedInputs().get(input) === 'BUNDLE') {
+      return "";
+    }
+
     return "0.00";
   }
 
   function getOutputValue(poolState: Map<string, any>, output: string) {
     const key = `${data.id}.${output}`;
-    if (poolState.has(key)) {
-      const envelope = poolState.get(key);
-      if (envelope && envelope.type === 'SINGLE') {
-        return Number(envelope.data.value).toFixed(2);
-      }
+    
+    let envelope = poolState.get(key);
+    if (!envelope && plugin && typeof plugin.getOutputs === 'function') {
+      envelope = plugin.getOutputs().get(output);
+    }
+
+    if (envelope && envelope.type === 'SINGLE') {
+      return Number(envelope.data.value).toFixed(2);
+    }
+    if (envelope && envelope.type === 'BUNDLE') {
+      return `${envelope.data.parameters.size} P`;
     }
     return "0.00";
   }
@@ -122,8 +139,11 @@
     margin-left: 8px;
   }
   :global(.handle) {
-    width: 10px;
-    height: 10px;
+    width: 12px !important;
+    height: 12px !important;
+    min-width: 12px !important;
+    min-height: 12px !important;
+    border-radius: 50% !important;
     background-color: #34d399;
     border: 2px solid #1e293b;
   }

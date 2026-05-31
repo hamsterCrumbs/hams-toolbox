@@ -82,7 +82,6 @@ export class VTuberToolboxEngine {
     }
   }
 
-  // This should be called on a timer (e.g., 30fps or 60fps)
   public tick() {
     let currentPool = new Map<string, DataEnvelope>();
 

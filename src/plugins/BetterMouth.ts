@@ -32,9 +32,13 @@ export class BetterMouthPlugin implements IPlugin {
     let mouthSmileValue = 0;
 
     if (arkitEnvelope && arkitEnvelope.type === 'BUNDLE') {
-      const arkit = arkitEnvelope.data.parameters;
+      // Serialize the Map into a simple key-value object for easier access
+      const arkit: Record<string, number> = {};
+      for (const [key, param] of arkitEnvelope.data.parameters) {
+        arkit[key] = param.value || 0;
+      }
 
-      mouthOpenValue = arkit.get('JawOpen')!.value - arkit.get('MouthClose')!.value;
+      mouthOpenValue = arkit.JawOpen - arkit.MouthClose;
       mouthSmileValue = 0;
 
     }
