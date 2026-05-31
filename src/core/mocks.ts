@@ -5,7 +5,10 @@ export class MockHeartMonitor implements IIntegration {
   name = 'Fake Heart Monitor';
   isConnected = false;
   private currentBpm = 70;
-  private outputs = new Map<string, DataEnvelope>();
+  // Pre-initialize outputs so it shows up in UI immediately before first poll
+  private outputs = new Map<string, DataEnvelope>([
+    ['bpm', { type: 'SINGLE', data: { id: 'bpm', value: 70, min: 0, max: 250 } }]
+  ]);
 
   async connect() {
     this.isConnected = true;
@@ -34,7 +37,10 @@ export class MockHeartMonitor implements IIntegration {
 export class PanicTriggerPlugin implements IPlugin {
   id = 'plug_panic01';
   name = 'Panic Trigger';
-  private outputs = new Map<string, DataEnvelope>();
+  // Pre-initialize outputs so it shows up in UI immediately
+  private outputs = new Map<string, DataEnvelope>([
+    ['panicState', { type: 'SINGLE', data: { id: 'panicState', value: false } }]
+  ]);
 
   registerInput(inputId: string, expectedType: 'SINGLE' | 'BUNDLE') {}
 

@@ -1,28 +1,21 @@
 <script lang="ts">
   import { Handle, Position } from '@xyflow/svelte';
-
-  // Svelte Flow passes node properties via the 'data' prop
-  export let data: {
-    label: string;
-    outputs: string[];
-  };
+  
+  export let data: { label: string; outputs: string[] };
 </script>
 
-<div class="integration-node">
-  <div class="node-header">
-    <span class="badge">Source</span>
-    <h3>{data.label}</h3>
-  </div>
-
-  <div class="ports-container">
+<div class="node">
+  <div class="title">{data.label}</div>
+  
+  <div class="ports">
     {#each data.outputs as output}
-      <div class="port-row output-row">
+      <div class="port-row">
         <span class="port-label">{output}</span>
-        <Handle
-          type="source"
-          position={Position.Right}
-          id={output}
-          style="top: auto; transform: none; right: -8px;"
+        <Handle 
+          type="source" 
+          position={Position.Right} 
+          id={output} 
+          class="handle" 
         />
       </div>
     {/each}
@@ -30,50 +23,39 @@
 </div>
 
 <style>
-  .integration-node {
-    background: #1e293b;
-    border: 2px solid #38bdf8;
+  .node {
+    background-color: #1e293b;
+    border: 1px solid #3b82f6;
     border-radius: 8px;
+    min-width: 150px;
     color: #f8fafc;
-    min-width: 180px;
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
   }
-  .node-header {
-    background: #0f172a;
-    padding: 0.5rem;
-    border-bottom: 1px solid #334155;
-    border-top-left-radius: 6px;
-    border-top-right-radius: 6px;
+  .title {
+    background-color: #3b82f6;
+    padding: 8px;
+    border-top-left-radius: 7px;
+    border-top-right-radius: 7px;
+    font-weight: 600;
+    text-align: center;
+    font-size: 14px;
   }
-  .badge {
-    font-size: 0.65rem;
-    background: #0284c7;
-    color: #e0f2fe;
-    padding: 0.1rem 0.4rem;
-    border-radius: 4px;
-    text-transform: uppercase;
-    font-weight: bold;
-  }
-  h3 {
-    margin: 0.2rem 0 0 0;
-    font-size: 0.9rem;
-  }
-  .ports-container {
-    padding: 0.5rem;
+  .ports {
+    padding: 10px 0;
   }
   .port-row {
     position: relative;
-    display: flex;
-    align-items: center;
-    height: 28px;
-    font-family: monospace;
-    font-size: 0.75rem;
-  }
-  .output-row {
-    justify-content: flex-end;
-    color: #38bdf8;
+    padding: 4px 12px;
+    text-align: right;
   }
   .port-label {
-    margin-right: 4px;
+    font-size: 12px;
+    color: #cbd5e1;
+  }
+  /* :global() is required to style components imported from external libraries in Svelte */
+  :global(.handle) {
+    width: 10px;
+    height: 10px;
+    background-color: #60a5fa;
+    border: 2px solid #1e293b;
   }
 </style>

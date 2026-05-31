@@ -5,48 +5,54 @@
   import GraphCanvas from './components/GraphCanvas.svelte';
   import * as Neutralino from '@neutralinojs/lib';
 
+  // Import Svelte Flow styles globally so it is parsed before the canvas mounts.
+  // This prevents the node measurement race conditions that offset the lines!
+  import '@xyflow/svelte/dist/style.css';
+
   // We make engine reactive so the GraphCanvas knows when it is ready
   let engine: VTuberToolboxEngine;
-  let ticker: number;
+  let ticker: ReturnType<typeof setInterval>;
   let poolState = new Map();
   let unsubscribe: () => void;
 
-  onMount(() => {
-    const setup = async () => {
-      // 2. Create the Engine locally
-      const localEngine = new VTuberToolboxEngine();
+onMount(() => {
+    // 1. Boot Native OS Bridge safely
+    // Wrap in a try-catch so that if we run outside `neu run` (e.g. standard browser), 
+    // it doesn't crash the script and prevent the UI from loading.
+    try {
+      Neutralino.init();
+    } catch (error) {
+      console.warn("Neutralino initialization skipped (running outside 'neu run'?):", error);
+    }
 
-      // 3. Add our Mocks
-      const heartMonitor = new MockHeartMonitor();
-      const panicPlugin = new PanicTriggerPlugin();
-      localEngine.registerIntegration(heartMonitor);
-      localEngine.registerPlugin(panicPlugin);
+    // 2. Create the Engine locally
+    const localEngine = new VTuberToolboxEngine();
 
-      // 4. Start processing data
-      await localEngine.start();
+    // 3. Add our Mocks
+    const heartMonitor = new MockHeartMonitor();
+    const panicPlugin = new PanicTriggerPlugin();
+    localEngine.registerIntegration(heartMonitor);
+    localEngine.registerPlugin(panicPlugin);
 
-      // 5. Assign to the reactive variable to trigger the GraphCanvas rendering
-      engine = localEngine;
+    // 4. Start processing data (Note: start() is async, but we don't await it here 
+    // so we don't block the UI rendering)
+    localEngine.start();
 
-      // 6. Subscribe to data for the text list below the canvas
-      unsubscribe = engine.dataPool.subscribe(value => {
-        poolState = value;
-      });
+    // 5. Assign to the reactive variable to trigger the GraphCanvas rendering instantly!
+    engine = localEngine;
 
-      // 7. Start the 30fps loop
-      ticker = setInterval(() => {
-        engine.tick();
-      }, 1000 / 30);
-    };
+    // 6. Subscribe to data for the text list below the canvas
+    unsubscribe = engine.dataPool.subscribe(value => {
+      poolState = value;
+    });
 
-    // 1. Boot Native OS Bridge and wait for it to be ready.
-    // The engine logic depends on the native connection, so we must
-    // wait for the 'ready' event before calling setup.
-    Neutralino.events.on('ready', setup);
-    Neutralino.init();
-
+    // 7. Start the 30fps loop
+    ticker = setInterval(() => {
+      engine.tick();
+    }, 1000 / 30);
+  
     return () => {
-      clearInterval(ticker);
+      if (ticker) clearInterval(ticker);
       if (unsubscribe) unsubscribe();
     };
   });
@@ -115,6 +121,8 @@
   .workspace {
     flex-grow: 1;
     min-height: 400px;
+    display: flex;
+    flex-direction: column;
   }
   .data-pool {
     background: #1e293b;
