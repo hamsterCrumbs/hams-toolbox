@@ -4,6 +4,8 @@
   
   import IntegrationNode from './IntegrationNode.svelte';
   import PluginNode from './PluginNode.svelte';
+  import ExtractPluginNode from './ExtractPluginNode.svelte';
+  import VTSIntegrationNode from './VTSIntegrationNode.svelte';
   import type { VTuberToolboxEngine } from '../core/engine';
   import { generateFlowNodes } from '../core/graphicUtils';
   import type { IPlugin } from '../core/types';
@@ -16,7 +18,15 @@
 
   // 2. Reactively update them when the engine is passed in
   $: if (engine && nodes.length === 0) {
-    nodes = generateFlowNodes(engine);
+    const generated = generateFlowNodes(engine);
+    nodes = generated.map(n => {
+      if (n.type === 'pluginNode' && n.data.label === 'Extract') {
+        n.type = 'extractPluginNode';
+      } else if (n.type === 'integrationNode' && n.data.label === 'VTS Phone Integration') {
+        n.type = 'vtsIntegrationNode';
+      }
+      return n;
+    });
   }
 
   // Force Svelte Flow to re-measure the canvas bounding box after rendering.
@@ -30,9 +40,14 @@
 
   // Expose an interface to push new plugins dynamically onto the canvas
   export function addPluginNode(plugin: IPlugin) {
+    let nodeType = 'pluginNode';
+    if (plugin.name === 'Extract') {
+      nodeType = 'extractPluginNode';
+    }
+
     const newNode: Node = {
       id: plugin.id,
-      type: 'pluginNode',
+      type: nodeType,
       position: { x: 400, y: Math.random() * 200 + 50 }, // slight random spawn variation
       data: { 
         label: plugin.name, 
@@ -47,7 +62,9 @@
 
   const nodeTypes = {
     integrationNode: IntegrationNode,
-    pluginNode: PluginNode
+    pluginNode: PluginNode,
+    extractPluginNode: ExtractPluginNode,
+    vtsIntegrationNode: VTSIntegrationNode
   };
 
   function handleConnect(connection: Connection) {

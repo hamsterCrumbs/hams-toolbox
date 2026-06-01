@@ -85,7 +85,7 @@ export class VTSPhoneIntegration implements IIntegration {
   }
 
   // New method to easily trigger a fresh rust listener without destroying the node
-  async reconnect() {
+  reconnect = async () => {
     console.log("Reconnecting VTS with IP:", this.iphoneIp, "Port:", this.vtsPort);
     return await this.connect();
   }

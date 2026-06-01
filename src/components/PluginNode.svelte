@@ -65,6 +65,18 @@
     return "0.00";
   }
 
+  function isBundleInput(input: string) {
+    return plugin && plugin.getExpectedInputs().get(input) === 'BUNDLE';
+  }
+
+  function isBundleOutput(output: string) {
+    if (plugin && typeof plugin.getOutputs === 'function') {
+      const envelope = plugin.getOutputs().get(output);
+      return envelope && envelope.type === 'BUNDLE';
+    }
+    return false;
+  }
+
   function handleDelete() {
     deleteElements({ nodes: [{ id: data.id }] });
   }
@@ -74,26 +86,7 @@
   <button class="delete-btn" onclick={handleDelete}>×</button>
   <div class="title">{data.label}</div>
   
-  {#if plugin && plugin.name === 'Extract'}
-    <div class="settings nodrag">
-      <div class="settings-title">Select Parameters:</div>
-      <div class="param-list">
-        {#if availableParams.length === 0}
-          <span class="no-bundle">Connect a bundle first...</span>
-        {/if}
-        {#each availableParams as paramName}
-          <label class="param-label">
-            <input 
-              type="checkbox" 
-              checked={(plugin as any).selectedParams.includes(paramName)}
-              onchange={() => toggleExtractParam(paramName)}
-            />
-            {paramName}
-          </label>
-        {/each}
-      </div>
-    </div>
-  {/if}
+  <slot />
 
   <div class="ports">
     <!-- Inputs on the Left -->
@@ -103,7 +96,7 @@
           type="target" 
           position={Position.Left} 
           id={input} 
-          class="handle" 
+          class="handle {isBundleInput(input) ? 'bundle-handle' : ''}" 
         />
         <span class="port-value">{getInputValue($pool, input)}</span>
         <span class="port-label">{input}</span>
@@ -119,7 +112,7 @@
           type="source" 
           position={Position.Right} 
           id={output} 
-          class="handle" 
+          class="handle {isBundleOutput(output) ? 'bundle-handle' : ''}" 
         />
       </div>
     {/each}
@@ -143,42 +136,6 @@
     font-weight: 600;
     text-align: center;
     font-size: 14px;
-  }
-  .settings {
-    padding: 8px 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    border-bottom: 1px solid #10b981;
-  }
-  .settings-title {
-    font-size: 11px;
-    font-weight: 600;
-    color: #cbd5e1;
-  }
-  .param-list {
-    max-height: 120px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    background: #0f172a;
-    padding: 6px;
-    border: 1px solid #334155;
-    border-radius: 4px;
-  }
-  .param-label {
-    font-size: 11px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    color: #e2e8f0;
-    cursor: pointer;
-  }
-  .no-bundle {
-    font-size: 10px;
-    color: #64748b;
-    font-style: italic;
   }
   .ports {
     padding: 10px 0;
@@ -210,7 +167,7 @@
   .output-row .port-value {
     margin-left: 8px;
   }
-  :global(.handle) {
+  .node :global(.handle) {
     width: 12px !important;
     height: 12px !important;
     min-width: 12px !important;
@@ -218,6 +175,9 @@
     border-radius: 50% !important;
     background-color: #34d399;
     border: 2px solid #1e293b;
+  }
+  .node :global(.bundle-handle) {
+    background-color: #93c5fd !important;
   }
   .delete-btn {
     position: absolute;
