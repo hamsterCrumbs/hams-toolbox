@@ -6,6 +6,7 @@
   import PluginNode from './PluginNode.svelte';
   import ExtractPluginNode from './ExtractPluginNode.svelte';
   import VTSIntegrationNode from './VTSIntegrationNode.svelte';
+  import VTSOutputPluginNode from './VTSOutputPluginNode.svelte';
   import type { VTuberToolboxEngine } from '../core/engine';
   import { generateFlowNodes } from '../core/graphicUtils';
   import type { IPlugin } from '../core/types';
@@ -22,6 +23,8 @@
     nodes = generated.map(n => {
       if (n.type === 'pluginNode' && n.data.label === 'Extract') {
         n.type = 'extractPluginNode';
+      } else if (n.type === 'pluginNode' && n.data.label === 'VTS Output') {
+        n.type = 'vtsOutputPluginNode';
       } else if (n.type === 'integrationNode' && n.data.label === 'VTS Phone Integration') {
         n.type = 'vtsIntegrationNode';
       }
@@ -43,6 +46,8 @@
     let nodeType = 'pluginNode';
     if (plugin.name === 'Extract') {
       nodeType = 'extractPluginNode';
+    } else if (plugin.name === 'VTS Output') {
+      nodeType = 'vtsOutputPluginNode';
     }
 
     const newNode: Node = {
@@ -64,7 +69,8 @@
     integrationNode: IntegrationNode,
     pluginNode: PluginNode,
     extractPluginNode: ExtractPluginNode,
-    vtsIntegrationNode: VTSIntegrationNode
+    vtsIntegrationNode: VTSIntegrationNode,
+    vtsOutputPluginNode: VTSOutputPluginNode
   };
 
   function handleConnect(connection: Connection) {

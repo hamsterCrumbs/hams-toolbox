@@ -7,8 +7,10 @@
   // Import Svelte Flow styles globally so it is parsed before the canvas mounts.
   // This prevents the node measurement race conditions that offset the lines!
   import '@xyflow/svelte/dist/style.css';
+  import './styles/nodes.css';
   import { BetterMouthPlugin } from './plugins/BetterMouth';
   import { ExtractPlugin } from './plugins/ExtractPlugin';
+  import { VTSOutputPlugin } from './plugins/VTSOutputPlugin';
     import VTubeStudioDesktop from './components/VTubeStudioDesktop.svelte';
 
   // We make engine reactive so the GraphCanvas knows when it is ready
@@ -54,6 +56,13 @@ onMount(() => {
     engine.registerPlugin(plugin);
     canvas.addPluginNode(plugin);
   }
+
+  function spawnVTSOutputPlugin() {
+    if (!engine || !canvas) return;
+    const plugin = new VTSOutputPlugin();
+    engine.registerPlugin(plugin);
+    canvas.addPluginNode(plugin);
+  }
 </script>
 
 <main>
@@ -63,6 +72,7 @@ onMount(() => {
     <div class="controls">
       <button onclick={spawnPlugin} class="btn">+ Add BetterMouth Plugin</button>
       <button onclick={spawnExtractPlugin} class="btn">+ Add Extract Plugin</button>
+      <button onclick={spawnVTSOutputPlugin} class="btn">+ Add VTS Output</button>
       <span class="status">Engine Running at 60fps</span>
     </div>
   </div>
