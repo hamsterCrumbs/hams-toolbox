@@ -9,12 +9,11 @@
   import '@xyflow/svelte/dist/style.css';
   import { BetterMouthPlugin } from './plugins/BetterMouth';
   import { ExtractPlugin } from './plugins/ExtractPlugin';
+    import VTubeStudioDesktop from './components/VTubeStudioDesktop.svelte';
 
   // We make engine reactive so the GraphCanvas knows when it is ready
   let engine: VTuberToolboxEngine;
   let ticker: ReturnType<typeof setInterval>;
-  let poolState = new Map();
-  let unsubscribe: () => void;
   let canvas: GraphCanvas;
 
 onMount(() => {
@@ -31,11 +30,6 @@ onMount(() => {
     // 5. Assign to the reactive variable to trigger the GraphCanvas rendering instantly!
     engine = localEngine;
 
-    // 6. Subscribe to data for the text list below the canvas
-    unsubscribe = engine.dataPool.subscribe(value => {
-      poolState = value;
-    });
-
     // 7. Start the 60fps loop
     ticker = setInterval(() => {
       engine.tick();
@@ -43,7 +37,6 @@ onMount(() => {
   
     return () => {
       if (ticker) clearInterval(ticker);
-      if (unsubscribe) unsubscribe();
     };
   });
 
@@ -66,6 +59,7 @@ onMount(() => {
 <main>
   <div class="header">
     <h1>Ham's VTuber Toolbox</h1>
+    <VTubeStudioDesktop />
     <div class="controls">
       <button onclick={spawnPlugin} class="btn">+ Add BetterMouth Plugin</button>
       <button onclick={spawnExtractPlugin} class="btn">+ Add Extract Plugin</button>
@@ -79,22 +73,6 @@ onMount(() => {
     {:else}
       <p>Loading nodes...</p>
     {/if}
-  </div>
-
-  <div class="data-pool">
-    <h2>Live Data Pool</h2>
-    <ul>
-      {#each [...poolState] as [key, envelope]}
-        <li>
-          <strong>{key}</strong>: 
-          {#if envelope.type === 'SINGLE'}
-            <span class="value">{envelope.data.value}</span>
-          {:else}
-            <span class="value">[Bundle Data]</span>
-          {/if}
-        </li>
-      {/each}
-    </ul>
   </div>
 </main>
 
@@ -147,33 +125,5 @@ onMount(() => {
     min-height: 400px;
     display: flex;
     flex-direction: column;
-  }
-  .data-pool {
-    background: #1e293b;
-    padding: 1rem;
-    border-radius: 8px;
-    height: 200px;
-    overflow-y: auto;
-    border: 1px solid #334155;
-  }
-  ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 1rem;
-  }
-  li {
-    background: #0f172a;
-    padding: 0.75rem;
-    border-radius: 6px;
-    border: 1px solid #334155;
-  }
-  .value {
-    color: #38bdf8;
-    font-family: monospace;
-    font-weight: bold;
-    float: right;
   }
 </style>
