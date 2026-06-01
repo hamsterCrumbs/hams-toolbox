@@ -90,7 +90,7 @@
 
   <div class="ports">
     <!-- Inputs on the Left -->
-    {#each data.inputs as input}
+    {#each data.inputs as input (input)}
       <div class="port-row input-row">
         <Handle 
           type="target" 
@@ -104,7 +104,7 @@
     {/each}
 
     <!-- Outputs on the Right -->
-    {#each data.outputs as output}
+    {#each data.outputs as output (output)}
       <div class="port-row output-row">
         <span class="port-label">{output}</span>
         <span class="port-value">{getOutputValue($pool, output)}</span>

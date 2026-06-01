@@ -50,7 +50,7 @@
   <slot />
 
   <div class="ports">
-    {#each data.outputs as output}
+    {#each data.outputs as output (output)}
       <div class="port-row output-row">
         <span class="port-label">{output}</span>
         <span class="port-value">{getOutputValue($pool, output)}</span>

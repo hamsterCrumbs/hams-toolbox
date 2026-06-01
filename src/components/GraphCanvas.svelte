@@ -16,8 +16,10 @@
   let nodes: Node[] = [];
   let edges: Edge[] = [];
 
-  // 2. Reactively update them when the engine is passed in
-  $: if (engine && nodes.length === 0) {
+  // 2. Initialize them only once when the engine is passed in
+  let isInitialized = false;
+  $: if (engine && !isInitialized) {
+    isInitialized = true;
     const generated = generateFlowNodes(engine);
     nodes = generated.map(n => {
       if (n.type === 'pluginNode' && n.data.label === 'Extract') {
@@ -133,9 +135,9 @@
 
     // Make sure we also unregister the deleted nodes from the engine
     for (const node of deletedNodes) {
-      if (node.type === 'pluginNode') {
+      if (node.type === 'pluginNode' || node.type === 'extractPluginNode') {
         engine.unregisterPlugin(node.id);
-      } else if (node.type === 'integrationNode') {
+      } else if (node.type === 'integrationNode' || node.type === 'vtsIntegrationNode') {
         engine.unregisterIntegration(node.id);
       }
     }

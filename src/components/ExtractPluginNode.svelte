@@ -31,7 +31,7 @@
         {#if availableParams.length === 0}
           <span class="no-bundle">Connect a bundle first...</span>
         {/if}
-        {#each availableParams as paramName}
+        {#each availableParams as paramName (paramName)}
           <label class="param-label">
             <input 
               type="checkbox" 
