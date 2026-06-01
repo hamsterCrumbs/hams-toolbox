@@ -7,6 +7,7 @@
   // Import Svelte Flow styles globally so it is parsed before the canvas mounts.
   // This prevents the node measurement race conditions that offset the lines!
   import '@xyflow/svelte/dist/style.css';
+  import './components/nodes.css';
   import { BetterMouthPlugin } from './plugins/BetterMouth';
   import { ExtractPlugin } from './plugins/ExtractPlugin';
     import VTubeStudioDesktop from './components/VTubeStudioDesktop.svelte';

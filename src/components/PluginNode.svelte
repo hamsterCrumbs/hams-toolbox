@@ -82,7 +82,7 @@
   }
 </script>
 
-<div class="node">
+<div class="node" style="--theme-color: #10b981; --handle-size: 12px;">
   <button class="delete-btn" onclick={handleDelete}>×</button>
   <div class="title">{data.label}</div>
   
@@ -118,81 +118,3 @@
     {/each}
   </div>
 </div>
-
-<style>
-  .node {
-    position: relative;
-    background-color: #1e293b;
-    border: 1px solid #10b981;
-    border-radius: 8px;
-    min-width: 180px;
-    color: #f8fafc;
-  }
-  .title {
-    background-color: #10b981;
-    padding: 8px;
-    border-top-left-radius: 7px;
-    border-top-right-radius: 7px;
-    font-weight: 600;
-    text-align: center;
-    font-size: 14px;
-  }
-  .ports {
-    padding: 10px 0;
-  }
-  .port-row {
-    position: relative;
-    padding: 4px 12px;
-    display: flex;
-    align-items: center;
-  }
-  .input-row {
-    justify-content: flex-start;
-  }
-  .output-row {
-    justify-content: flex-end;
-  }
-  .port-label {
-    font-size: 12px;
-    color: #cbd5e1;
-  }
-  .port-value {
-    font-size: 10px;
-    color: #64748b;
-    font-family: monospace;
-  }
-  .input-row .port-value {
-    margin-right: 8px;
-  }
-  .output-row .port-value {
-    margin-left: 8px;
-  }
-  .node :global(.handle) {
-    width: 12px !important;
-    height: 12px !important;
-    min-width: 12px !important;
-    min-height: 12px !important;
-    border-radius: 50% !important;
-    background-color: #34d399;
-    border: 2px solid #1e293b;
-  }
-  .node :global(.bundle-handle) {
-    background-color: #93c5fd !important;
-  }
-  .delete-btn {
-    position: absolute;
-    top: 4px;
-    right: 4px;
-    background: transparent;
-    border: none;
-    color: #f8fafc;
-    cursor: pointer;
-    font-size: 16px;
-    line-height: 1;
-    border-radius: 4px;
-    padding: 2px 6px;
-  }
-  .delete-btn:hover {
-    background: #ef4444;
-  }
-</style>
