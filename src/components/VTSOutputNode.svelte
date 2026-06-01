@@ -11,11 +11,27 @@
 
   // --- Dynamic Input Management (n+1) ---
   $: {
-    const routes = data.engine.getRoutes().get(data.id) || {};
-    const connectedCount = Object.keys(routes).length;
-    const expectedInputs = connectedCount + 1;
+    // 1. Force Svelte to re-evaluate this block continuously by referencing $pool
+    const _ = $pool;
 
-    if (data.inputs.length !== expectedInputs) {
+    const routes = data.engine.getRoutes().get(data.id) || {};
+    
+    // 2. Find the highest port index that is currently connected
+    let highestIndex = -1;
+    for (const [handle, poolKey] of Object.entries(routes)) {
+      if (poolKey && poolKey !== '') {
+        const idx = parseInt(handle.replace('In_', ''), 10);
+        if (!isNaN(idx) && idx > highestIndex) {
+          highestIndex = idx;
+        }
+      }
+    }
+
+    // 3. Ensure we always have an empty port at the bottom (highestIndex + 2)
+    //    and we never shrink the array, to prevent Svelte Flow from deleting active edges!
+    const expectedInputs = Math.max(data.inputs.length, highestIndex + 2);
+
+    if (data.inputs.length < expectedInputs) {
       const newInputs = Array.from({ length: expectedInputs }, (_, i) => `In_${i}`);
       
       // Update the node's handles in the UI
@@ -45,11 +61,12 @@
 
   // --- Extract Parameters from Pool ---
   $: connectedParams = (() => {
+    const _ = $pool; // Force Svelte to evaluate this block on every data tick
     const params: any[] = [];
     const routes = data.engine.getRoutes().get(data.id) || {};
     
     for (const [inputHandle, poolKey] of Object.entries(routes)) {
-      if ($pool.has(poolKey)) {
+      if (poolKey && $pool.has(poolKey)) {
         const envelope = $pool.get(poolKey);
         
         if (envelope && envelope.type === 'SINGLE') {
